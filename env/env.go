@@ -9,7 +9,7 @@ import (
 )
 
 // LoadEnv loads environment variables from a file
-func LoadEnv(envFile string) error {
+func Load(envFile string) error {
 	file, err := os.Open(envFile)
 
 	if err != nil {
@@ -49,7 +49,7 @@ func LoadEnv(envFile string) error {
 }
 
 // Halts the program if an environment variable is unset
-func Must(v string) string {
+func MustGet(v string) string {
 	res, exists := os.LookupEnv(v)
 
 	if !exists {
@@ -61,7 +61,7 @@ func Must(v string) string {
 }
 
 // Retrieves an environment variable and uses a given fallback if unset
-func GetEnv(v string, def string) string {
+func Get(v string, def string) string {
 	res, exists := os.LookupEnv(v)
 
 	if !exists {
