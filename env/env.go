@@ -37,37 +37,36 @@ func Load(envFile string) error {
 
 		// Set the environment variable
 		if err := os.Setenv(key, value); err != nil {
-			return err
+			return fmt.Errorf("os setenv: %v", err)
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return err
+		return fmt.Errorf("scanner: %v", err)
 	}
 
 	return nil
 }
 
 // Halts the program if an environment variable is unset
-func MustGet(v string) string {
-	res, exists := os.LookupEnv(v)
+func MustGet(envVar string) string {
+	value, isSet := os.LookupEnv(envVar)
 
-	if !exists {
-		fmt.Fprintf(os.Stderr, "%s not set!\n", v)
-		os.Exit(1)
+	if !isSet {
+		log.Fatalf("%s environment variable is not set!\n", envVar)
 	}
 
-	return res
+	return value
 }
 
 // Retrieves an environment variable and uses a given fallback if unset
-func Get(v string, def string) string {
-	res, exists := os.LookupEnv(v)
+func Get(envVar string, fallback string) string {
+	value, isSet := os.LookupEnv(envVar)
 
-	if !exists {
-		log.Println(v + " does not exist, using default of " + def)
-		return def
+	if !isSet {
+		log.Println(envVar, " is not set, using fallback of", fallback, ".")
+		return fallback
 	}
 
-	return res
+	return value
 }
