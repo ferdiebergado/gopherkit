@@ -64,7 +64,7 @@ func Get(envVar string, fallback string) string {
 	value, isSet := os.LookupEnv(envVar)
 
 	if !isSet {
-		log.Println(envVar, " is not set, using fallback of", fallback, ".")
+		log.Printf("%s is not set, using %s as fallback.", envVar, fallback)
 		return fallback
 	}
 
