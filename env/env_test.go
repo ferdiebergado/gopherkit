@@ -5,71 +5,99 @@ import (
 	"testing"
 )
 
-type MockLogger struct {
-	FatalCalled  bool
-	FatalfCalled bool
-	FatalArgs    []interface{}
-}
+func TestLoad(t *testing.T) {
+	// Create a temporary .env file
+	tempFile, err := os.CreateTemp("", "test.env")
+	if err != nil {
+		t.Fatalf("failed to create temp file: %v", err)
+	}
+	defer os.Remove(tempFile.Name()) // Clean up the temp file
 
-func (m *MockLogger) Fatal(args ...interface{}) {
-	m.FatalCalled = true
-	m.FatalArgs = args
-}
+	// Write sample environment variables
+	content := `# Sample .env file
+TEST_KEY=test_value
+ANOTHER_KEY=another_value
 
-func (m *MockLogger) Fatalf(format string, args ...interface{}) {
-	m.FatalfCalled = true
-	m.FatalArgs = args
-}
+# Commented out
+# IGNORE_ME=ignored_value
 
-func (m *MockLogger) Write(p []byte) (n int, err error) {
-	// Implement your desired behavior for writing to the mock logger
-	// For example, you could store the written bytes in a buffer
-	// or log them to a testing log.
-	return len(p), nil
+EMPTY_LINE
+
+INVALID_LINE
+`
+	_, err = tempFile.WriteString(content)
+	if err != nil {
+		t.Fatalf("failed to write to temp file: %v", err)
+	}
+	tempFile.Close()
+
+	// Load environment variables from the file
+	err = Load(tempFile.Name())
+	if err != nil {
+		t.Fatalf("Load() failed: %v", err)
+	}
+
+	// Check loaded variables
+	if os.Getenv("TEST_KEY") != "test_value" {
+		t.Errorf("expected TEST_KEY=test_value, got %s", os.Getenv("TEST_KEY"))
+	}
+	if os.Getenv("ANOTHER_KEY") != "another_value" {
+		t.Errorf("expected ANOTHER_KEY=another_value, got %s", os.Getenv("ANOTHER_KEY"))
+	}
+
+	// Ensure invalid and commented lines are ignored
+	if os.Getenv("IGNORE_ME") != "" {
+		t.Errorf("expected IGNORE_ME to be unset, got %s", os.Getenv("IGNORE_ME"))
+	}
 }
 
 func TestMustGet(t *testing.T) {
-	t.Run("Should return the value if the environment variable is set", func(t *testing.T) {
-		const envVar = "ENV"
-		const dev = "development"
+	// Set and unset environment variables for testing
+	os.Setenv("MUSTGET_TEST", "mustget_value")
+	defer os.Unsetenv("MUSTGET_TEST")
 
-		if err := os.Setenv(envVar, dev); err != nil {
-			t.Errorf("failed to set env vars: %v", err)
+	if val := MustGet("MUSTGET_TEST"); val != "mustget_value" {
+		t.Errorf("MustGet() returned %s, expected mustget_value", val)
+	}
+
+	// Test missing variable
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("MustGet() did not halt the program for missing variable")
 		}
-
-		want := dev
-
-		if got := MustGet(envVar); got != want {
-			t.Errorf("MustGet() = %v, want %v", got, want)
-		}
-
-	})
+	}()
+	MustGet("MISSING_KEY")
 }
 
 func TestGet(t *testing.T) {
-	t.Run("Should return the value if the environment variable is set", func(t *testing.T) {
-		const envVar = "ENV"
-		const dev = "development"
+	os.Setenv("GET_TEST", "get_value")
+	defer os.Unsetenv("GET_TEST")
 
-		if err := os.Setenv(envVar, dev); err != nil {
-			t.Errorf("failed to set env vars: %v", err)
-		}
+	if val := Get("GET_TEST", "fallback_value"); val != "get_value" {
+		t.Errorf("Get() returned %s, expected get_value", val)
+	}
 
-		want := dev
+	if val := Get("MISSING_GET", "fallback_value"); val != "fallback_value" {
+		t.Errorf("Get() returned %s, expected fallback_value", val)
+	}
+}
 
-		if got := Get(envVar, dev); got != want {
-			t.Errorf("MustGet() = %v, want %v", got, want)
-		}
-	})
+func TestGetInt(t *testing.T) {
+	os.Setenv("GET_INT_TEST", "42")
+	defer os.Unsetenv("GET_INT_TEST")
 
-	t.Run("Should return the fallback if the environment variable is not set", func(t *testing.T) {
-		const envVar = "PORT"
-		const fallback = "8000"
+	if val := GetInt("GET_INT_TEST", 99); val != 42 {
+		t.Errorf("GetInt() returned %d, expected 42", val)
+	}
 
-		want := fallback
+	if val := GetInt("MISSING_GET_INT", 99); val != 99 {
+		t.Errorf("GetInt() returned %d, expected 99", val)
+	}
 
-		if got := Get(envVar, fallback); got != want {
-			t.Errorf("MustGet() = %v, want %v", got, want)
-		}
-	})
+	// Test invalid integer
+	os.Setenv("INVALID_INT", "notanumber")
+	defer os.Unsetenv("INVALID_INT")
+	if val := GetInt("INVALID_INT", 88); val != 88 {
+		t.Errorf("GetInt() returned %d, expected 88", val)
+	}
 }
