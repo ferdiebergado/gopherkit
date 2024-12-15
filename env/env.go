@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
-// LoadEnv loads environment variables from a file
+// Loads environment variables from a file
 func Load(envFile string) error {
 	file, err := os.Open(envFile)
 
@@ -48,18 +49,18 @@ func Load(envFile string) error {
 	return nil
 }
 
-// Halts the program if an environment variable is unset
+// Stops program execution when an environment variable is not set
 func MustGet(envVar string) string {
 	value, isSet := os.LookupEnv(envVar)
 
 	if !isSet {
-		log.Fatalf("%s environment variable is not set!\n", envVar)
+		panic(envVar + " environment variable is not set!\n")
 	}
 
 	return value
 }
 
-// Retrieves an environment variable and uses a given fallback if unset
+// Retrieves an environment variable, returns a given fallback if not set
 func Get(envVar string, fallback string) string {
 	value, isSet := os.LookupEnv(envVar)
 
@@ -69,4 +70,17 @@ func Get(envVar string, fallback string) string {
 	}
 
 	return value
+}
+
+// Retrieves an environment variable, returns a given fallback integer if not set
+func GetInt(envVar string, fallback int) int {
+	value, isSet := os.LookupEnv(envVar)
+	parsed, err := strconv.Atoi(value)
+
+	if !isSet || err != nil {
+		log.Printf("%s is not set or invalid, using %d as fallback.", envVar, fallback)
+		return fallback
+	}
+
+	return parsed
 }
