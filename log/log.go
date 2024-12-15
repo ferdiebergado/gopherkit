@@ -14,9 +14,9 @@ func CreateLogger() *slog.Logger {
 func Fatal(reason string, err error) {
 	slog.Error(
 		"Fatal error occurred",
-		slog.String("reason", reason),
-		slog.String("error", err.Error()),
-		slog.String("severity", "FATAL"),
+		"reason", reason,
+		"details", err,
+		"severity", "FATAL",
 	)
 
 	panic(reason)

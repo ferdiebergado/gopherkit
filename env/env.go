@@ -11,7 +11,7 @@ import (
 
 // Loads environment variables from a file
 func Load(envFile string) error {
-	slog.Info("Loading environment file", slog.String("file", envFile))
+	slog.Info("Loading environment file", "file", envFile)
 	file, err := os.Open(envFile)
 
 	if err != nil {
@@ -66,9 +66,11 @@ func Get(envVar string, fallback string) string {
 	value, isSet := os.LookupEnv(envVar)
 
 	if !isSet {
-		slog.Info("Environment variable is not set, using fallback.", slog.String("variable", envVar), slog.String("fallback", fallback))
+		slog.Warn("Environment variable is not set, using fallback.", "variable", envVar, "fallback", fallback)
 		return fallback
 	}
+
+	slog.Info("Environment variable is set", "variable", envVar, "value", value)
 
 	return value
 }
@@ -79,9 +81,11 @@ func GetInt(envVar string, fallback int) int {
 	parsed, err := strconv.Atoi(value)
 
 	if !isSet || err != nil {
-		slog.Info("Environment variable is not set or invalid, using fallback.", slog.String("variable", envVar), slog.Int("fallback", fallback))
+		slog.Warn("Environment variable is not set or invalid, using fallback.", "variable", envVar, slog.Int("fallback", fallback))
 		return fallback
 	}
+
+	slog.Info("Environment variable is set", "variable", envVar, slog.Int("value", parsed))
 
 	return parsed
 }
