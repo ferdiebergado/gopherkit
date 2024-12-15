@@ -3,7 +3,7 @@ package env
 import (
 	"bufio"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
@@ -11,6 +11,7 @@ import (
 
 // Loads environment variables from a file
 func Load(envFile string) error {
+	slog.Info("Loading environment file", slog.String("file", envFile))
 	file, err := os.Open(envFile)
 
 	if err != nil {
@@ -65,7 +66,7 @@ func Get(envVar string, fallback string) string {
 	value, isSet := os.LookupEnv(envVar)
 
 	if !isSet {
-		log.Printf("%s is not set, using %s as fallback.", envVar, fallback)
+		slog.Info("Environment variable is not set, using fallback.", slog.String("variable", envVar), slog.String("fallback", fallback))
 		return fallback
 	}
 
@@ -78,7 +79,7 @@ func GetInt(envVar string, fallback int) int {
 	parsed, err := strconv.Atoi(value)
 
 	if !isSet || err != nil {
-		log.Printf("%s is not set or invalid, using %d as fallback.", envVar, fallback)
+		slog.Info("Environment variable is not set or invalid, using fallback.", slog.String("variable", envVar), slog.Int("fallback", fallback))
 		return fallback
 	}
 
