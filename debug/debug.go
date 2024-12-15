@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"reflect"
 )
@@ -49,9 +48,9 @@ func RequestBodyMap(w http.ResponseWriter, r *http.Request) {
 	var dataMap map[string]interface{}
 	err := json.NewDecoder(r.Body).Decode(&dataMap)
 	if err != nil {
-		log.Printf("JSON decoding error: %v\n", err)
+		fmt.Printf("JSON decoding error: %v\n", err)
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-	log.Printf("Decoded map: %+v\n", dataMap)
+	fmt.Printf("Decoded map: %+v\n", dataMap)
 }
