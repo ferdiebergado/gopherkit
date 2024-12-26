@@ -101,3 +101,81 @@ func TestGetInt(t *testing.T) {
 		t.Errorf("GetInt() returned %d, expected 88", val)
 	}
 }
+
+func TestGetBool(t *testing.T) {
+	tests := []struct {
+		name     string
+		envVar   string
+		envValue string
+		isSet    bool
+		fallback bool
+		want     bool
+	}{
+		{
+			name:     "Environment variable set to true",
+			envVar:   "TEST_VAR",
+			envValue: "true",
+			isSet:    true,
+			fallback: false,
+			want:     true,
+		},
+		{
+			name:     "Environment variable set to false",
+			envVar:   "TEST_VAR",
+			envValue: "false",
+			isSet:    true,
+			fallback: true,
+			want:     false,
+		},
+		{
+			name:     "Environment variable not set, fallback true",
+			envVar:   "TEST_VAR",
+			isSet:    false,
+			fallback: true,
+			want:     true,
+		},
+		{
+			name:     "Environment variable not set, fallback false",
+			envVar:   "TEST_VAR",
+			isSet:    false,
+			fallback: false,
+			want:     false,
+		},
+		{
+			name:     "Invalid environment variable value, fallback true",
+			envVar:   "TEST_VAR",
+			envValue: "invalid",
+			isSet:    true,
+			fallback: true,
+			want:     true,
+		},
+		{
+			name:     "Invalid environment variable value, fallback false",
+			envVar:   "TEST_VAR",
+			envValue: "invalid",
+			isSet:    true,
+			fallback: false,
+			want:     false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			// Set up the environment variable if specified
+			if test.isSet {
+				os.Setenv(test.envVar, test.envValue)
+			} else {
+				os.Unsetenv(test.envVar)
+			}
+
+			got := GetBool(test.envVar, test.fallback)
+
+			if got != test.want {
+				t.Errorf("GetBool(%q, %t) = %t; want %t", test.envVar, test.fallback, got, test.want)
+			}
+
+			// Clean up the environment variable
+			os.Unsetenv(test.envVar)
+		})
+	}
+}
