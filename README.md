@@ -93,6 +93,24 @@ port := env.GetInt("PORT", 8080)
 
 ---
 
+#### `GetBool(envVar string, fallback bool) bool`
+
+**Description**: Retrieves the value of an environment variable as a boolean. If the variable is not set or the value is invalid, a fallback value is returned.
+
+- **Parameters**:
+  - `envVar`: The name of the environment variable.
+  - `fallback`: The fallback value to use if the variable is not set or invalid.
+- **Returns**:
+  - `bool`: The value of the environment variable or the fallback.
+
+**Usage**:
+
+```go
+isDebug := env.GetBool("DEBUG", false)
+```
+
+---
+
 ### Example Usage
 
 ```go
@@ -105,6 +123,8 @@ import (
 )
 
 func main() {
+  // Logger initialization with programLevel here
+
 	// Load environment variables from a file
 	if err := env.Load(".env"); err != nil {
 		log.Fatalf("Failed to load environment variables: %v", err)
@@ -118,6 +138,12 @@ func main() {
 
 	// Get integer environment variable with fallback
 	port := env.GetInt("PORT", 8080)
+
+  isDebug := env.GetBool("DEBUG", false)
+
+  if isDebug {
+    programLevel.Set(slog.LevelDebug)
+  }
 
 	log.Printf("Database User: %s, Host: %s, Port: %d", dbUser, dbHost, port)
 }
@@ -267,6 +293,26 @@ func TestExample(t *testing.T) {
 	assert.Len(t, []int{1, 2, 3}, 3)
 }
 ```
+
+### Miscellaneous Helpers
+
+#### `Sum(values ...interface{}) Number`
+
+**Description**: Calculates the sum of the given numbers or slice of numbers.
+
+- **Parameters**:
+  - `values`: Variadic or slice of numbers.
+- **Returns**:
+  - `Number`: The sum of the given numbers.
+
+**Usage**:
+
+```go
+totalItems := gopherkit.Sum(10675, 8050, 2503)
+totalRate := gopherkit.Sum([]float64{1.5, 0.3, 0.1})
+```
+
+---
 
 ### Logging
 
