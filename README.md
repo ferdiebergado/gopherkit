@@ -2,6 +2,8 @@
 
 GopherKit is a versatile and lightweight utility library designed for Go developers.
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/ferdiebergado/gopherkit)](https://goreportcard.com/report/github.com/ferdiebergado/gopherkit)
+
 ## Installation
 
 ```sh
