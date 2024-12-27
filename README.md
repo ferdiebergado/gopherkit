@@ -88,7 +88,7 @@ dbHost := env.Get("DB_HOST", "localhost")
 **Usage**:
 
 ```go
-port := env.GetInt("PORT", 8080)
+pingTimeout := env.GetInt("DB_PING_TIMEOUT", 10)
 ```
 
 ---
@@ -296,7 +296,7 @@ func TestExample(t *testing.T) {
 
 ### Miscellaneous Helpers
 
-#### `Sum(values ...interface{}) Number`
+#### `Sum[T Number](values ...any) Number`
 
 **Description**: Calculates the sum of the given numbers or slice of numbers.
 
@@ -308,8 +308,8 @@ func TestExample(t *testing.T) {
 **Usage**:
 
 ```go
-totalItems := gopherkit.Sum(10675, 8050, 2503)
-totalRate := gopherkit.Sum([]float64{1.5, 0.3, 0.1})
+totalItems := gopherkit.Sum[int](10675, 8050, 2503)
+totalRate := gopherkit.Sum[float64]([]float64{1.5, 0.3, 0.1})
 ```
 
 ---
