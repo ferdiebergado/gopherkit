@@ -78,10 +78,16 @@ func Get(envVar string, fallback string) string {
 // Retrieves an environment variable as an int, returns a given fallback if not set
 func GetInt(envVar string, fallback int) int {
 	value, isSet := os.LookupEnv(envVar)
+
+	if !isSet {
+		slog.Warn("Environment variable is not set, using fallback.", "variable", envVar, slog.Int("fallback", fallback))
+		return fallback
+	}
+
 	parsed, err := strconv.Atoi(value)
 
-	if !isSet || err != nil {
-		slog.Warn("Environment variable is not set or invalid, using fallback.", "variable", envVar, slog.Int("fallback", fallback))
+	if err != nil {
+		slog.Warn("Environment variable is invalid, using fallback.", "variable", envVar, slog.Int("fallback", fallback))
 		return fallback
 	}
 
