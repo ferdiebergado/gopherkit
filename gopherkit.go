@@ -33,24 +33,25 @@ type Complex interface {
 }
 
 type Number interface {
-	Integer | Float | Complex
+	Integer | UnsignedInt | Float | Complex
 }
 
 // Calculate the sum of variadic or slice of numbers
-func Sum[T Number](values ...interface{}) T {
-	var total T
+func Sum[T Number](values ...any) T {
+	var sum T
 
-	for _, val := range values {
-		switch v := val.(type) {
+	for _, vv := range values {
+		switch v := vv.(type) {
 		case []T: // If the input is a slice
 			for _, item := range v {
-				total += item
+				sum += item
 			}
 		case T: // If the input is a single numeric value
-			total += v
+			sum += v
 		default:
-			panic(fmt.Sprintf("Unsupported type: %v", v))
+			panic(fmt.Sprintf("Unsupported type: %T", v))
 		}
 	}
-	return total
+
+	return sum
 }
