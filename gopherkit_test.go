@@ -2,6 +2,8 @@ package gopherkit
 
 import (
 	"testing"
+
+	"github.com/ferdiebergado/gopherkit/assert"
 )
 
 func TestParseInt(t *testing.T) {
@@ -55,14 +57,14 @@ func TestParseInt(t *testing.T) {
 	}
 }
 
-type SumTestData[T Number] struct {
+type SumTestCase[T Number] struct {
 	name     string
 	input    []T
 	expected T
 }
 
 func TestSum(t *testing.T) {
-	tests := []SumTestData[int]{
+	tests := []SumTestCase[int]{
 		{
 			name:     "Sum of empty slice",
 			input:    []int{},
@@ -85,13 +87,11 @@ func TestSum(t *testing.T) {
 			t.Parallel()
 
 			result := Sum[int](tt.input)
-			if result != tt.expected {
-				t.Errorf("Sum(%v)= %d; expected %d", tt.input, result, tt.expected)
-			}
+			assert.Equal(t, tt.expected, result)
 		})
 	}
 
-	float64test := []SumTestData[float64]{
+	float64test := []SumTestCase[float64]{
 		{
 			name:     "Sum of empty float64 slice",
 			input:    []float64{},
@@ -109,20 +109,16 @@ func TestSum(t *testing.T) {
 			t.Parallel()
 
 			result := Sum[float64](tt.input)
-			if result != tt.expected {
-				t.Errorf("Sum(%v)= %f; expected %f", tt.input, result, tt.expected)
-			}
+			assert.Equal(t, tt.expected, result)
 		})
 	}
 
 	t.Run("Sum of variadic ints", func(t *testing.T) {
 		t.Parallel()
 
-		result := Sum[int](1, 2, 3)
-		expected := 6
-		if result != expected {
-			t.Errorf("Sum(%v)= %d; expected %d", "1,2,3", result, expected)
-		}
+		result := Sum[int](1, -2, 3)
+		expected := 2
+		assert.Equal(t, expected, result)
 	})
 
 	t.Run("Sum of variadic float64", func(t *testing.T) {
@@ -130,8 +126,14 @@ func TestSum(t *testing.T) {
 
 		result := Sum[float64](1.25, 2.5, 3.01)
 		expected := 6.76
-		if result != expected {
-			t.Errorf("Sum(%v)= %f; expected %f", "1.25, 2.5, 3.01", result, expected)
-		}
+		assert.Equal(t, expected, result)
+	})
+
+	t.Run("Sum of variadic slices", func(t *testing.T) {
+		t.Parallel()
+
+		result := Sum[int]([]int{1, 1, 1}, []int{2, 2, 2}, []int{3, 3, 3})
+		expected := 18
+		assert.Equal(t, expected, result)
 	})
 }
