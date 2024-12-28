@@ -66,11 +66,11 @@ func Get(envVar string, fallback string) string {
 	value, isSet := os.LookupEnv(envVar)
 
 	if !isSet {
-		slog.Warn("Environment variable is not set, using fallback.", "variable", envVar, "fallback", fallback)
+		slog.Debug("Environment variable is not set, using fallback.", "variable", envVar, "fallback", fallback)
 		return fallback
 	}
 
-	slog.Info("Environment variable is set", "variable", envVar, "value", value)
+	slog.Debug("Environment variable is set", "variable", envVar, "value", value)
 
 	return value
 }
@@ -80,18 +80,18 @@ func GetInt(envVar string, fallback int) int {
 	value, isSet := os.LookupEnv(envVar)
 
 	if !isSet {
-		slog.Warn("Environment variable is not set, using fallback.", "variable", envVar, slog.Int("fallback", fallback))
+		slog.Debug("Environment variable is not set, using fallback.", "variable", envVar, slog.Int("fallback", fallback))
 		return fallback
 	}
 
 	parsed, err := strconv.Atoi(value)
 
 	if err != nil {
-		slog.Warn("Environment variable is invalid, using fallback.", "variable", envVar, slog.Int("fallback", fallback))
+		slog.Debug("Environment variable is invalid, using fallback.", "variable", envVar, slog.Int("fallback", fallback))
 		return fallback
 	}
 
-	slog.Info("Environment variable is set", "variable", envVar, slog.Int("value", parsed))
+	slog.Debug("Environment variable is set", "variable", envVar, slog.Int("value", parsed))
 
 	return parsed
 }
@@ -102,11 +102,11 @@ func GetBool(envVar string, fallback bool) bool {
 	parsed, err := strconv.ParseBool(value)
 
 	if !isSet || err != nil {
-		slog.Warn("Environment variable is not set or invalid, using fallback.", "variable", envVar, slog.Bool("fallback", fallback))
+		slog.Debug("Environment variable is not set or invalid, using fallback.", "variable", envVar, slog.Bool("fallback", fallback))
 		return fallback
 	}
 
-	slog.Info("Environment variable is set", "variable", envVar, slog.Bool("value", parsed))
+	slog.Debug("Environment variable is set", "variable", envVar, slog.Bool("value", parsed))
 
 	return parsed
 }
