@@ -11,7 +11,9 @@ import (
 // Decodes the JSON payload from the request body
 func JSON[T any](r *http.Request) (T, error) {
 	var v T
-	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&v); err != nil {
 		return v, fmt.Errorf("decode json: %w", err)
 	}
 	return v, nil
