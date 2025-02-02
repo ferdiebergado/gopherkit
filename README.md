@@ -314,6 +314,23 @@ totalRate := gopherkit.Sum[float64]([]float64{1.5, 0.3, 0.1})
 
 ---
 
+#### `GetIPAddress(r *http.Request) string`
+
+**Description**: Extracts the client's IP address from the request.
+
+- **Parameters**:
+  - `r`: The http request.
+- **Returns**:
+  - `String`: The client ip address.
+
+**Usage**:
+
+```go
+ip := GetIPAddress(r)
+```
+
+---
+
 ### Logging
 
 The package uses [slog](https://pkg.go.dev/log/slog) for logging. Make sure to set up your logging configuration to capture relevant logs for debugging or monitoring purposes.
