@@ -87,8 +87,10 @@ func DumpRequest(req *http.Request) map[string]any {
 
 	// Parse form data
 	if err := req.ParseForm(); err == nil {
-		result["Form"] = req.Form
-		result["PostForm"] = req.PostForm
+		result["Method"] = req.Method
+		result["ContentLength"] = req.ContentLength
+		result["Form"] = map[string][]string(req.Form)         // Convert explicitly
+		result["PostForm"] = map[string][]string(req.PostForm) // Convert explicitly
 	}
 
 	// Multipart form (manually included)

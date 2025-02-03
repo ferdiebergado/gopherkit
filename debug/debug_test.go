@@ -2,12 +2,18 @@ package debug_test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/ferdiebergado/gopherkit/debug"
 )
+
+type contextKey string
+
+const userID contextKey = "userID"
 
 // Helper function to create a test request
 func newTestRequest(method, urlStr string, body string) *http.Request {
@@ -64,22 +70,36 @@ func TestRequestDump_GetRequest(t *testing.T) {
 
 // Test POST request with form data
 func TestRequestDump_PostRequest(t *testing.T) {
-	req := newTestRequest("POST", "https://example.com/submit", "name=John&age=30")
+	body := "name=John&age=30"
+	req := newTestRequest("POST", "https://example.com/submit", body)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Form = map[string][]string{"name": {"John"}, "age": {"30"}}
+
+	// Attach body and parse form
+	req.Body = io.NopCloser(strings.NewReader(body))
+	req.ContentLength = int64(len(body))
+	if err := req.ParseForm(); err != nil {
+		t.Fatal("failed to parse form", err)
+	} // REQUIRED to populate req.Form
 
 	result := debug.DumpRequest(req)
 
+	// Check method
 	if result["Method"] != "POST" {
 		t.Errorf("Expected Method=POST, got %v", result["Method"])
 	}
 
-	if result["ContentLength"] != int64(15) {
-		t.Errorf("Expected ContentLength=15, got %v", result["ContentLength"])
+	// Check content length
+	if result["ContentLength"] != int64(len(body)) {
+		t.Errorf("Expected ContentLength=%d, got %v", len(body), result["ContentLength"])
 	}
 
-	form, ok := result["Form"].(map[string][]string)
-	if !ok || form["name"][0] != "John" || form["age"][0] != "30" {
+	// Assert form values properly
+	form, ok := result["Form"].(map[string][]string) // Correct type assertion
+	if !ok {
+		t.Fatalf("Expected Form to be map[string][]string, got %T", result["Form"])
+	}
+
+	if form["name"][0] != "John" || form["age"][0] != "30" {
 		t.Errorf("Expected Form[name]=John and Form[age]=30, got %v", form)
 	}
 }
@@ -123,7 +143,7 @@ func TestRequestDump_Cookies(t *testing.T) {
 // Test request with a custom context
 func TestRequestDump_Context(t *testing.T) {
 	req := newTestRequest("GET", "https://example.com", "")
-	ctx := context.WithValue(context.Background(), "userID", 42)
+	ctx := context.WithValue(context.Background(), userID, 42)
 	req = req.WithContext(ctx)
 
 	result := debug.DumpRequest(req)
