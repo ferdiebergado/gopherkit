@@ -54,3 +54,59 @@ func RequestBodyMap(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("Decoded map: %+v\n", dataMap)
 }
+
+// DumpRequest extracts fields and method-returned values from *http.Request
+func DumpRequest(req *http.Request) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	// Basic request info
+	result["Method"] = req.Method
+	result["URL"] = map[string]interface{}{
+		"Scheme":   req.URL.Scheme,
+		"Opaque":   req.URL.Opaque,
+		"User":     req.URL.User,
+		"Host":     req.URL.Host,
+		"Path":     req.URL.Path,
+		"RawQuery": req.URL.RawQuery,
+		"Fragment": req.URL.Fragment,
+	}
+	result["Proto"] = req.Proto
+	result["ProtoMajor"] = req.ProtoMajor
+	result["ProtoMinor"] = req.ProtoMinor
+	result["Header"] = req.Header
+	result["Host"] = req.Host
+	result["RemoteAddr"] = req.RemoteAddr
+	result["RequestURI"] = req.RequestURI
+	result["ContentLength"] = req.ContentLength
+	result["TransferEncoding"] = req.TransferEncoding
+	result["Close"] = req.Close
+	result["Trailer"] = req.Trailer
+
+	// Query parameters
+	result["QueryParams"] = req.URL.Query()
+
+	// Parse form data
+	if err := req.ParseForm(); err == nil {
+		result["Form"] = req.Form
+		result["PostForm"] = req.PostForm
+	}
+
+	// Multipart form (manually included)
+	result["MultipartForm"] = req.MultipartForm
+
+	// Call methods for unexported fields
+	result["Cookies"] = req.Cookies() // Fetches stored cookies
+	result["Context"] = req.Context() // Fetches context
+
+	// TLS info (if available)
+	result["TLS"] = req.TLS
+
+	// Placeholder for the body
+	result["Body"] = "<nil>"
+
+	// Response and Cancel fields (unexported)
+	result["Response"] = req.Response
+	result["Cancel"] = "<nil>" // Deprecated in Go 1.17, always nil
+
+	return result
+}
