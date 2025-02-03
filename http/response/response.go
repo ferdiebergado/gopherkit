@@ -3,9 +3,12 @@ package response
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
+	"log/slog"
 	"net/http"
 	"path/filepath"
+	"runtime/debug"
 )
 
 const (
@@ -14,17 +17,18 @@ const (
 )
 
 // Sends a JSON response
-func JSON(w http.ResponseWriter, status int, v any) {
+func JSON(w http.ResponseWriter, r *http.Request, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
 	if err := json.NewEncoder(w).Encode(v); err != nil {
-		ServerError(w)
+		ServerError(w, r, fmt.Errorf("encode json: %w", err))
 	}
 }
 
-func ServerError(w http.ResponseWriter) {
-	http.Error(w, "an error occurred.", http.StatusInternalServerError)
+func ServerError(w http.ResponseWriter, r *http.Request, err error) {
+	slog.Error("server error", "reason", err, "request", fmt.Sprint(r), "trace", string(debug.Stack()))
+	http.Error(w, "An error occurred.", http.StatusInternalServerError)
 }
 
 // Sends an HTML response
