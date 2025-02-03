@@ -10,7 +10,7 @@ import (
 )
 
 // Dumps the underlying fields and values of a struct
-func DumpStruct(s interface{}) {
+func DumpStruct(s any) {
 	v := reflect.ValueOf(s)
 	t := v.Type()
 
@@ -45,7 +45,7 @@ func DumpRequestBody(r *http.Request) {
 
 // Dumps the request body as a map
 func RequestBodyMap(w http.ResponseWriter, r *http.Request) {
-	var dataMap map[string]interface{}
+	var dataMap map[string]any
 	err := json.NewDecoder(r.Body).Decode(&dataMap)
 	if err != nil {
 		fmt.Printf("JSON decoding error: %v\n", err)
@@ -56,12 +56,12 @@ func RequestBodyMap(w http.ResponseWriter, r *http.Request) {
 }
 
 // DumpRequest extracts fields and method-returned values from *http.Request
-func DumpRequest(req *http.Request) map[string]interface{} {
-	result := make(map[string]interface{})
+func DumpRequest(req *http.Request) map[string]any {
+	result := make(map[string]any)
 
 	// Basic request info
 	result["Method"] = req.Method
-	result["URL"] = map[string]interface{}{
+	result["URL"] = map[string]any{
 		"Scheme":   req.URL.Scheme,
 		"Opaque":   req.URL.Opaque,
 		"User":     req.URL.User,
