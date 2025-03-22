@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
+
+	ghttp "github.com/ferdiebergado/gopherkit/http"
 )
 
 const (
@@ -18,7 +20,7 @@ const (
 
 // Sends a JSON response
 func JSON(w http.ResponseWriter, r *http.Request, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(ghttp.HeaderContentType, ghttp.MimeJSONUTF8)
 	w.WriteHeader(status)
 
 	if err := json.NewEncoder(w).Encode(v); err != nil {

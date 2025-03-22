@@ -9,9 +9,12 @@ import (
 	"testing"
 
 	"github.com/ferdiebergado/gopherkit/debug"
+	ghttp "github.com/ferdiebergado/gopherkit/http"
 )
 
 type contextKey string
+
+const testUrl = "https://example.com"
 
 const userID contextKey = "userID"
 
@@ -36,17 +39,18 @@ func newTestRequest(method, urlStr string, body string) *http.Request {
 }
 
 // Test basic GET request
-func TestRequestDump_GetRequest(t *testing.T) {
-	req := newTestRequest("GET", "https://example.com/path?query=value#fragment", "")
+func TestDumpRequestGetRequest(t *testing.T) {
+	method := http.MethodGet
+	req := newTestRequest(method, testUrl+"/path?query=value#fragment", "")
 
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(ghttp.HeaderContentType, ghttp.MimeJSONUTF8)
 	req.Header.Set("X-Custom-Header", "some value")
 	req.RemoteAddr = "192.0.2.1:1234"
 
 	result := debug.DumpRequest(req)
 
 	// Validate key request fields
-	if result["Method"] != "GET" {
+	if result["Method"] != method {
 		t.Errorf("Expected Method=GET, got %v", result["Method"])
 	}
 
@@ -59,8 +63,8 @@ func TestRequestDump_GetRequest(t *testing.T) {
 	}
 
 	headers, ok := result["Header"].(http.Header)
-	if !ok || headers.Get("Content-Type") != "application/json" {
-		t.Errorf("Expected Content-Type=application/json, got %v", headers)
+	if !ok || headers.Get(ghttp.HeaderContentType) != ghttp.MimeJSONUTF8 {
+		t.Errorf("Expected Content-Type=application/json; charset=utf-8, got %v", headers)
 	}
 
 	if req.URL.Path != "/path" {
@@ -69,10 +73,11 @@ func TestRequestDump_GetRequest(t *testing.T) {
 }
 
 // Test POST request with form data
-func TestRequestDump_PostRequest(t *testing.T) {
+func TestDumpRequestPostRequest(t *testing.T) {
 	body := "name=John&age=30"
-	req := newTestRequest("POST", "https://example.com/submit", body)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	method := http.MethodPost
+	req := newTestRequest(method, testUrl+"/submit", body)
+	req.Header.Set(ghttp.HeaderContentType, ghttp.MimeFormUrlEncoded)
 
 	// Attach body and parse form
 	req.Body = io.NopCloser(strings.NewReader(body))
@@ -84,7 +89,7 @@ func TestRequestDump_PostRequest(t *testing.T) {
 	result := debug.DumpRequest(req)
 
 	// Check method
-	if result["Method"] != "POST" {
+	if result["Method"] != method {
 		t.Errorf("Expected Method=POST, got %v", result["Method"])
 	}
 
@@ -105,12 +110,13 @@ func TestRequestDump_PostRequest(t *testing.T) {
 }
 
 // Test request with empty values
-func TestRequestDump_EmptyRequest(t *testing.T) {
-	req := newTestRequest("GET", "https://example.com", "")
+func TestDumpRequestEmptyRequest(t *testing.T) {
+	method := http.MethodGet
+	req := newTestRequest(method, testUrl, "")
 
 	result := debug.DumpRequest(req)
 
-	if result["Method"] != "GET" {
+	if result["Method"] != method {
 		t.Errorf("Expected Method=GET, got %v", result["Method"])
 	}
 
@@ -128,8 +134,8 @@ func TestRequestDump_EmptyRequest(t *testing.T) {
 }
 
 // Test request with cookies
-func TestRequestDump_Cookies(t *testing.T) {
-	req := newTestRequest("GET", "https://example.com", "")
+func TestDumpRequestCookies(t *testing.T) {
+	req := newTestRequest(http.MethodGet, testUrl, "")
 	req.AddCookie(&http.Cookie{Name: "session", Value: "abc123"})
 
 	result := debug.DumpRequest(req)
@@ -141,8 +147,8 @@ func TestRequestDump_Cookies(t *testing.T) {
 }
 
 // Test request with a custom context
-func TestRequestDump_Context(t *testing.T) {
-	req := newTestRequest("GET", "https://example.com", "")
+func TestDumpRequestContext(t *testing.T) {
+	req := newTestRequest(http.MethodGet, testUrl, "")
 	ctx := context.WithValue(context.Background(), userID, 42)
 	req = req.WithContext(ctx)
 
@@ -154,8 +160,8 @@ func TestRequestDump_Context(t *testing.T) {
 }
 
 // Test request with URL containing no scheme or host
-func TestRequestDump_EmptyURL(t *testing.T) {
-	req := newTestRequest("GET", "/local/path", "")
+func TestDumpRequestEmptyURL(t *testing.T) {
+	req := newTestRequest(http.MethodGet, "/local/path", "")
 
 	result := debug.DumpRequest(req)
 
