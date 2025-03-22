@@ -12,7 +12,7 @@ import (
 )
 
 func TestServerError(t *testing.T) {
-	req := httptest.NewRequest("GET", "/", nil)
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rr := httptest.NewRecorder()
 
 	response.ServerError(rr, req, fmt.Errorf("some function call: %w", errors.New("failed")))
