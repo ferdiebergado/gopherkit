@@ -20,7 +20,7 @@ const (
 
 // Sends a JSON response
 func JSON(w http.ResponseWriter, r *http.Request, status int, v any) {
-	w.Header().Set(ghttp.HeaderContentType, ghttp.MimeJSONUTF8)
+	w.Header().Set(ghttp.HeaderContentType, ghttp.MimeJSON)
 	w.WriteHeader(status)
 
 	if err := json.NewEncoder(w).Encode(v); err != nil {

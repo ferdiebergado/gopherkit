@@ -43,7 +43,7 @@ func TestDumpRequestGetRequest(t *testing.T) {
 	method := http.MethodGet
 	req := newTestRequest(method, testUrl+"/path?query=value#fragment", "")
 
-	req.Header.Set(ghttp.HeaderContentType, ghttp.MimeJSONUTF8)
+	req.Header.Set(ghttp.HeaderContentType, ghttp.MimeJSON)
 	req.Header.Set("X-Custom-Header", "some value")
 	req.RemoteAddr = "192.0.2.1:1234"
 
@@ -63,7 +63,7 @@ func TestDumpRequestGetRequest(t *testing.T) {
 	}
 
 	headers, ok := result["Header"].(http.Header)
-	if !ok || headers.Get(ghttp.HeaderContentType) != ghttp.MimeJSONUTF8 {
+	if !ok || headers.Get(ghttp.HeaderContentType) != ghttp.MimeJSON {
 		t.Errorf("Expected Content-Type=application/json; charset=utf-8, got %v", headers)
 	}
 
