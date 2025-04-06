@@ -17,7 +17,7 @@ func TestLoad(t *testing.T) {
 	content := `# Sample .env file
 TEST_KEY=test_value
 ANOTHER_KEY=another_value
-
+ANOTHER_KEY_WITH_INLINE_COMMENT=another_value #inline comment
 # Commented out
 # IGNORE_ME=ignored_value
 
@@ -44,7 +44,9 @@ INVALID_LINE
 	if os.Getenv("ANOTHER_KEY") != "another_value" {
 		t.Errorf("expected ANOTHER_KEY=another_value, got %s", os.Getenv("ANOTHER_KEY"))
 	}
-
+	if os.Getenv("ANOTHER_KEY_WITH_INLINE_COMMENT") != "another_value" {
+		t.Errorf("expected ANOTHER_KEY_WITH_INLINE_COMMENT=another_value, got %s", os.Getenv("ANOTHER_KEY_WITH_INLINE_COMMENT"))
+	}
 	// Ensure invalid and commented lines are ignored
 	if os.Getenv("IGNORE_ME") != "" {
 		t.Errorf("expected IGNORE_ME to be unset, got %s", os.Getenv("IGNORE_ME"))
