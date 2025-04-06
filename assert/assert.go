@@ -1,70 +1,56 @@
 package assert
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"testing"
 )
 
 // AssertEqual asserts that two values are equal.
-func Equal(t *testing.T, expected, actual interface{}, msg ...string) {
+func Equal(t *testing.T, expected, actual any) {
+	t.Helper()
 	if !reflect.DeepEqual(expected, actual) {
-		message := formatMessage("expected", expected, actual, msg...)
-		t.Error(message)
+		t.Errorf("Expected %v but got %v for equal", expected, actual)
 	}
 }
 
 // AssertNotEqual asserts that two values are not equal.
-func NotEqual(t *testing.T, expected, actual interface{}, msg ...string) {
+func NotEqual(t *testing.T, expected, actual any) {
+	t.Helper()
 	if reflect.DeepEqual(expected, actual) {
-		message := formatMessage("not expected", expected, actual, msg...)
-		t.Error(message)
+		t.Errorf("Expected %v but got %v for not equal", expected, actual)
 	}
 }
 
 // AssertNoError asserts that an error is nil.
-func NoError(t *testing.T, err error, msg ...string) {
+func NoError(t *testing.T, err error) {
+	t.Helper()
 	if err != nil {
-		message := formatMessage("no error", nil, err, msg...)
-		t.Error(message)
+		t.Errorf("Expected no error but got %v", err)
 	}
 }
 
 // AssertError asserts that an error is not nil.
-func Error(t *testing.T, err error, msg ...string) {
+func Error(t *testing.T, err error) {
+	t.Helper()
 	if err == nil {
-		message := formatMessage("error", "non-nil error", err, msg...)
-		t.Error(message)
+		t.Errorf("Expected error but got nil")
 	}
 }
 
 // AssertContains asserts that a string contains a substring.
-func Contains(t *testing.T, s, substr string, msg ...string) {
-	if !contains(s, substr) {
-		message := formatMessage(fmt.Sprintf("'%s' to contain", substr), substr, s, msg...)
-		t.Error(message)
+func Contains(t *testing.T, s, substr string) {
+	t.Helper()
+	if len(substr) > 0 && !strings.Contains(s, substr) {
+		t.Errorf("Expected %s to contain %s", s, substr)
 	}
 }
 
 // AssertLen asserts that a collection has the expected length.
-func Len(t *testing.T, collection interface{}, length int, msg ...string) {
+func Len(t *testing.T, collection any, length int) {
+	t.Helper()
 	actualLen := reflect.ValueOf(collection).Len()
 	if actualLen != length {
-		message := formatMessage("length", length, actualLen, msg...)
-		t.Error(message)
+		t.Errorf("Expected length %d but got %d", length, actualLen)
 	}
-}
-
-// Helper function to check if a string contains a substring.
-func contains(s, substr string) bool {
-	return len(substr) == 0 || strings.Contains(s, substr)
-}
-
-// Helper function to format error messages.
-func formatMessage(expectationType string, expected, actual interface{}, msg ...string) string {
-	if len(msg) > 0 {
-		return msg[0]
-	}
-	return fmt.Sprintf("Expected %v but got %v for %s", expected, actual, expectationType)
 }

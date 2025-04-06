@@ -157,7 +157,7 @@ func main() {
 
 ### Functions
 
-#### `Equal(t *testing.T, expected, actual interface{}, msg ...string)`
+#### `Equal(t *testing.T, expected, actual any)`
 
 **Description**: Asserts that two values are equal. If the values are not equal, an error is reported with the provided message.
 
@@ -165,17 +165,16 @@ func main() {
   - `t`: The test context (from `testing.T`).
   - `expected`: The expected value.
   - `actual`: The actual value to compare against.
-  - `msg`: Optional message to include in case of failure.
 
 **Usage**:
 
 ```go
-assert.Equal(t, expectedValue, actualValue, "Values should be equal")
+assert.Equal(t, expectedValue, actualValue)
 ```
 
 ---
 
-#### `NotEqual(t *testing.T, expected, actual interface{}, msg ...string)`
+#### `NotEqual(t *testing.T, expected, actual any)`
 
 **Description**: Asserts that two values are not equal. If the values are equal, an error is reported with the provided message.
 
@@ -183,51 +182,48 @@ assert.Equal(t, expectedValue, actualValue, "Values should be equal")
   - `t`: The test context (from testing.T).
   - `expected`: The value that should not be equal to actual.
   - `actual`: The actual value to compare.
-  - `msg`: Optional message to include in case of failure.
 
 **Usage**:
 
 ```go
-assert.NotEqual(t, expectedValue, actualValue, "Values should not be equal")
+assert.NotEqual(t, expectedValue, actualValue)
 ```
 
 ---
 
-#### `NoError(t *testing.T, err error, msg ...string)`
+#### `NoError(t *testing.T, err error)`
 
 **Description**: Asserts that an error is nil. If the error is not nil, an error is reported with the provided message.
 
 - **Parameters**:
   - `t`: The test context (from testing.T).
   - `err`: The error to check.
-  - `msg`: Optional message to include in case of failure.
 
 **Usage**:
 
 ```go
-assert.NoError(t, err, "Expected no error")
+assert.NoError(t, err)
 ```
 
 ---
 
-#### `Error(t *testing.T, err error, msg ...string)`
+#### `Error(t *testing.T, err error)`
 
 **Description**: Asserts that an error is not nil. If the error is nil, an error is reported with the provided message.
 
 - **Parameters**:
   - `t`: The test context (from testing.T).
   - `err`: The error to check.
-  - `msg`: Optional message to include in case of failure.
 
 **Usage**:
 
 ```go
-assert.Error(t, err, "Expected an error")
+assert.Error(t, err)
 ```
 
 ---
 
-#### `Contains(t *testing.T, s, substr string, msg ...string)`
+#### `Contains(t *testing.T, s, substr string)`
 
 **Description**: Asserts that a string contains a substring. If the substring is not found, an error is reported with the provided message.
 
@@ -235,17 +231,16 @@ assert.Error(t, err, "Expected an error")
   - `t`: The test context (from testing.T).
   - `s`: The string to check.
   - `substr`: The substring to check for.
-  - `msg`: Optional message to include in case of failure.
 
 **Usage**:
 
 ```go
-assert.Contains(t, str, "substring", "Expected string to contain substring")
+assert.Contains(t, str, "substring")
 ```
 
 ---
 
-#### `Len(t *testing.T, collection interface{}, length int, msg ...string)`
+#### `Len(t *testing.T, collection any, length int)`
 
 **Description**: Asserts that a collection (e.g., slice, array, map) has the expected length. If the lengths do not match, an error is reported with the provided message.
 
@@ -253,12 +248,11 @@ assert.Contains(t, str, "substring", "Expected string to contain substring")
   - `t`: The test context (from testing.T).
   - `collection`: The collection whose length is to be checked.
   - `length`: The expected length.
-  - `msg`: Optional message to include in case of failure.
 
 **Usage**:
 
 ```go
-assert.Len(t, collection, expectedLength, "Expected collection to have length X")
+assert.Len(t, collection, expectedLength)
 ```
 
 ---
