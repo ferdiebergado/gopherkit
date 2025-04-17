@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log/slog"
 	"net/http"
+	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strings"
 
 	ghttp "github.com/ferdiebergado/gopherkit/http"
 )
@@ -86,4 +89,31 @@ func templateFuncs() template.FuncMap {
 			return template.CSS(s)
 		},
 	}
+}
+
+// ParsePages recursively parses a given directory containing html templates.
+// Each page is parsed against the layout template.
+// It returns a map containing the name of the template as key and the parsed template as the value.
+func ParsePages(templateDir string, layoutTmpl *template.Template) (map[string]*template.Template, error) {
+	tmplMap := make(map[string]*template.Template)
+	err := fs.WalkDir(os.DirFS(templateDir), ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		const suffix = ".html"
+		if !d.IsDir() && strings.HasSuffix(path, suffix) {
+			name := strings.TrimPrefix(path, "/")
+			name = strings.TrimSuffix(name, suffix)
+			tmplMap[name] = template.Must(template.Must(layoutTmpl.Clone()).ParseFiles(filepath.Join(templateDir, path)))
+			slog.Debug("parsed page", "path", path, "name", name)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("load pages templates: %w", err)
+	}
+
+	return tmplMap, nil
 }
